@@ -1,0 +1,12 @@
+{
+  "C_Cpp.intelliSenseEngine": "default",
+  "idf.extensionActivationMode": "always",
+  "idf.openOcdConfigs": [
+    "interface/ftdi/esp32_devkitjv1.cfg",
+    "target/esp32.cfg"
+  ],
+  "idf.currentSetup": "C:\\Users\\Novcic\\esp\\esp-idf",
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32"
+  }
+}
