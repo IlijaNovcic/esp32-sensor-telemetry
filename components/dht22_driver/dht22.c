@@ -3,8 +3,9 @@
 #include "rom/ets_sys.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_timer.h"
 
-#define DHT22_MAX_WAIT_US   1000
+#define DHT22_MAX_WAIT_US   2000
 #define DHT22_BIT_ONE_US    50
 
 static gpio_num_t s_gpio_pin = GPIO_NUM_NC;
@@ -48,44 +49,51 @@ dht22_err_t dht22_read(dht22_reading_t *out)
     gpio_set_direction(s_gpio_pin, GPIO_MODE_INPUT);
     // Enable internal pull-up resistor
     gpio_set_pull_mode(s_gpio_pin, GPIO_PULLUP_ONLY); 
-
+    
     /* Wait for sensor response LOW */
-    uint32_t wait = 0;
+    int64_t t_start = esp_timer_get_time();
+
     while (gpio_get_level(s_gpio_pin) == 1) {
-        ets_delay_us(1);
-        if (++wait > DHT22_MAX_WAIT_US) return DHT22_ERR_TIMEOUT;
+        if ((esp_timer_get_time() - t_start) > DHT22_MAX_WAIT_US) {
+            return DHT22_ERR_TIMEOUT;
+        }
     }
 
-    /* Wait for sensor response HIGH */
-    wait = 0;
+    t_start = esp_timer_get_time();
+
     while (gpio_get_level(s_gpio_pin) == 0) {
-        ets_delay_us(1);
-        if (++wait > DHT22_MAX_WAIT_US) return DHT22_ERR_TIMEOUT;
+        if ((esp_timer_get_time() - t_start) > DHT22_MAX_WAIT_US) {
+            return DHT22_ERR_TIMEOUT;
+        }
     }
 
-    /* Wait for sensor response HIGH to finish */
-    wait = 0;
+    t_start = esp_timer_get_time();
     while (gpio_get_level(s_gpio_pin) == 1) {
-        ets_delay_us(1);
-        if (++wait > DHT22_MAX_WAIT_US) return DHT22_ERR_TIMEOUT;
+        if ((esp_timer_get_time() - t_start) > DHT22_MAX_WAIT_US) {
+            return DHT22_ERR_TIMEOUT;
+        }
     }
 
     /* Read 40 bits */
     for (int i = 0; i < 40; i++) {
 
         /* Wait for LOW to finish */
-        wait = 0;
+        t_start = esp_timer_get_time();
         while (gpio_get_level(s_gpio_pin) == 0) {
-            ets_delay_us(1);
-            if (++wait > DHT22_MAX_WAIT_US) return DHT22_ERR_TIMEOUT;
+            if ((esp_timer_get_time() - t_start) > DHT22_MAX_WAIT_US) {
+                return DHT22_ERR_TIMEOUT;
+            }
         }
 
         /* Measure HIGH duration */
-        uint32_t high_us = 0;
+        int64_t t_high = esp_timer_get_time();
         while (gpio_get_level(s_gpio_pin) == 1) {
-            ets_delay_us(1);
-            if (++high_us > DHT22_MAX_WAIT_US) return DHT22_ERR_TIMEOUT;
+            if ((esp_timer_get_time() - t_high) > DHT22_MAX_WAIT_US) {
+                return DHT22_ERR_TIMEOUT;
+            }
         }
+
+        int64_t high_us = esp_timer_get_time() - t_high;
 
         data[i / 8] |= (high_us > DHT22_BIT_ONE_US) << (7 - i % 8);
     }

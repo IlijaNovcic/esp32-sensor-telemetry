@@ -8,5 +8,7 @@
   "idf.currentSetup": "C:\\Users\\Novcic\\esp\\esp-idf",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32"
-  }
+  },
+  "idf.portWin": "COM3",
+  "idf.flashType": "UART"
 }
