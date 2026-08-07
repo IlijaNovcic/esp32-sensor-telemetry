@@ -1,6 +1,10 @@
 #pragma once 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Enum used for parsing commands
 typedef enum
 {
@@ -22,3 +26,7 @@ typedef struct
 
 // Parses a command string and returns the decoded command and optional parameter.
 t_cmd_parser_operational_data cmd_parser_parse_user_cmd(const char* user_command);
+
+#ifdef __cplusplus
+}
+#endif

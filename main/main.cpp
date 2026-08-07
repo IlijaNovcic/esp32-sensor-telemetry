@@ -2,14 +2,17 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "dht22.h"
+#include "cmd_parser.h"
+#include "sensor_manager.hpp"
 
 void dht22_task(void *pvParameters)
 {
-    dht22_init(GPIO_NUM_26);
+    SensorManager sens_mng(GPIO_NUM_26);
+    // dht22_init(GPIO_NUM_26);
 
     while (1) {
         dht22_reading_t reading;
-        dht22_err_t err = dht22_read(&reading);
+        dht22_err_t err = sens_mng.read(&reading);//dht22_read(&reading);
 
         if (err == DHT22_OK) {
             printf("Temp: %d.%d C  Hum: %d.%d %%\n",
@@ -27,7 +30,7 @@ void dht22_task(void *pvParameters)
     }
 }
 
-void app_main(void)
+extern "C" void app_main(void)
 {
     printf("esp32-sensor-telemetry: system start\n");
     xTaskCreatePinnedToCore(dht22_task, "dht22_task", 2048, NULL, 5, NULL, 1);

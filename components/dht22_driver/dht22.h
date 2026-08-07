@@ -3,6 +3,10 @@
 #include <stdint.h>
 #include "driver/gpio.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ------------------------------------------------------------------ */
 /*  Public types                                                        */
 /* ------------------------------------------------------------------ */
@@ -47,3 +51,7 @@ dht22_err_t dht22_init(gpio_num_t gpio_pin);
  * @return DHT22_OK, DHT22_ERR_TIMEOUT, or DHT22_ERR_CHECKSUM.
  */
 dht22_err_t dht22_read(dht22_reading_t *out);
+
+#ifdef __cplusplus
+}
+#endif
