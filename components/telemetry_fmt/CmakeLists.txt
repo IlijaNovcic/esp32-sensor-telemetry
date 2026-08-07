@@ -1,0 +1,3 @@
+idf_component_register(SRCS "telemetry_fmt.c"
+                        INCLUDE_DIRS "."
+                        REQUIRES dht22_driver)
